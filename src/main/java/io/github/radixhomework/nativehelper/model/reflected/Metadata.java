@@ -1,4 +1,4 @@
-package io.github.radixhomework.nativehelper.model;
+package io.github.radixhomework.nativehelper.model.reflected;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -7,12 +7,12 @@ import java.util.List;
 
 @Data
 @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_NULL)
-public class ReflectionMetadata {
-    private ReflectionCondition condition;
+public class Metadata {
+    private Condition condition;
     private String name;
-    private List<ReflectionMethod> methods;
-    private List<ReflectionMethod> queriedMethods;
-    private List<ReflectionField> fields;
+    private List<Method> methods;
+    private List<Method> queriedMethods;
+    private List<Field> fields;
     private boolean allDeclaredClasses = true;
     private boolean allDeclaredMethods = true;
     private boolean allDeclaredFields = true;
