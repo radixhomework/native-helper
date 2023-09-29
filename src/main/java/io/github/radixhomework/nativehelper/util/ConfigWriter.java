@@ -1,6 +1,8 @@
 package io.github.radixhomework.nativehelper.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -27,7 +29,8 @@ public class ConfigWriter {
             String relativeName = Constants.NATIVE_HELPER_BASE_PATH + project + fileName;
             FileObject resource = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", relativeName);
             ObjectMapper mapper = new ObjectMapper();
-            String text = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(content);
+            FilterProvider filters = new SimpleFilterProvider().addFilter(MetadataFilter.NAME, new MetadataFilter());
+            String text = mapper.writer(filters).writeValueAsString(content);
             try (Writer writer = resource.openWriter()) {
                 writer.write(text);
                 writer.flush();
