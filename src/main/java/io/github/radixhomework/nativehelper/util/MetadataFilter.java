@@ -11,19 +11,19 @@ public class MetadataFilter extends SimpleBeanPropertyFilter {
 
     private static final String PATTERN = "((queryA|a)ll(Declared|Public|Record|Nest|Permitted|Signers)(Classes|Methods|Fields|Constructors|Components|Members|Subclasses|)|unsafeAllocated)";
     @Override
-    public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
+    public void serializeAsField(Object pojo, JsonGenerator generator, SerializerProvider provider, PropertyWriter writer)
             throws Exception {
 
         if (include(writer)) {
             if (!writer.getName().matches(PATTERN)) {
-                writer.serializeAsField(pojo, jgen, provider);
+                writer.serializeAsField(pojo, generator, provider);
             } else {
                 if (pojo.equals(true)) {
-                    writer.serializeAsField(pojo, jgen, provider);
+                    writer.serializeAsField(pojo, generator, provider);
                 }
             }
-        } else if (!jgen.canOmitFields()) {
-            writer.serializeAsOmittedField(pojo, jgen, provider);
+        } else if (!generator.canOmitFields()) {
+            writer.serializeAsOmittedField(pojo, generator, provider);
         }
     }
 }
