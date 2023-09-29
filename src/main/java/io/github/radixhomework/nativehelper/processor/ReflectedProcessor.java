@@ -5,6 +5,7 @@ import io.github.radixhomework.nativehelper.annotation.Reflected;
 import io.github.radixhomework.nativehelper.model.reflected.Field;
 import io.github.radixhomework.nativehelper.model.reflected.Metadata;
 import io.github.radixhomework.nativehelper.model.reflected.Method;
+import io.github.radixhomework.nativehelper.service.ReflectedService;
 import io.github.radixhomework.nativehelper.util.ConfigWriter;
 import io.github.radixhomework.nativehelper.util.Constants;
 
@@ -21,78 +22,73 @@ import java.util.Set;
 @AutoService(Processor.class)
 public class ReflectedProcessor extends AbstractProcessor {
 
+    private static final String UNSUPPORTED_MESSAGE_END = " elements are not supported yet for native image reflection configuration";
+
+    ReflectedService service = new ReflectedService();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (annotations.isEmpty()) {
             return false;
         }
-        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,"Processing Reflected Annotation");
-        List<Metadata> metadatas = new ArrayList<>();
+        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Processing Reflected Annotation");
+        List<Metadata> metadataList = new ArrayList<>();
         for (TypeElement annotation : annotations) {
             Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             Metadata metadata = new Metadata();
+
             for (Element element : annotatedElements) {
+                Reflected instance = element.getAnnotation(Reflected.class);
+
+                // Initialize metadata and configuration from annotation instance
+                metadata = service.initMetadata(instance);
+
                 PackageElement packageElement = (PackageElement) element.getEnclosingElement();
                 // Package name + Class name
                 metadata.setName(packageElement.getQualifiedName().toString() + "." + element.getSimpleName());
+
                 List<Method> methods = new ArrayList<>();
                 List<Field> fields = new ArrayList<>();
 
                 for (Element classElement : element.getEnclosedElements()) {
                     switch (classElement.getKind()) {
                         case FIELD -> {
-                            VariableElement fieldElement = (VariableElement) classElement;
-                            Field field = new Field();
-                            field.setName(fieldElement.getSimpleName().toString());
-                            fields.add(field);
+                            if (metadata.isFieldsToInspect()) {
+                                VariableElement fieldElement = (VariableElement) classElement;
+                                fields.add(service.gatherMetadata(fieldElement));
+                            }
                         }
                         case METHOD -> {
-                            ExecutableElement methodElement = (ExecutableElement) classElement;
-                            Method method = new Method();
-                            method.setName(classElement.getSimpleName().toString());
-                            List<String> parameterTypes = new ArrayList<>();
-                            for (VariableElement parameter : methodElement.getParameters()) {
-                                parameterTypes.add(parameter.asType().toString());
+                            if (metadata.isMethodsToInspect()) {
+                                ExecutableElement methodElement = (ExecutableElement) classElement;
+                                if (!metadata.isMethodToIgnore(methodElement.getSimpleName().toString())) {
+                                    methods.add(service.gatherMetadata(methodElement));
+                                }
                             }
-                            method.setParameterTypes(parameterTypes);
-                            methods.add(method);
+                        }
+                        // TODO: add constructors support (in METHOD case ?)
+                        case CONSTRUCTOR -> this.processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                "Constructors" + UNSUPPORTED_MESSAGE_END);
+                        // TODO: add subclasses support
+                        case CLASS -> this.processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                "Subclasses" + UNSUPPORTED_MESSAGE_END);
+                        // TODO: add records support
+                        case RECORD -> this.processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                "Records" + UNSUPPORTED_MESSAGE_END);
+                        default -> {
+                            // Silently do nothing for now
                         }
                     }
                 }
 
                 metadata.setMethods(methods);
                 metadata.setFields(fields);
-
-                Reflected instance = element.getAnnotation(Reflected.class);
-                metadata.setAllDeclaredClasses(instance.allDeclaredClasses());
-                metadata.setAllDeclaredMethods(instance.allDeclaredMethods());
-                metadata.setAllDeclaredFields(instance.allDeclaredFields());
-                metadata.setAllDeclaredConstructors(instance.allDeclaredConstructors());
-                metadata.setAllPublicClasses(instance.allPublicClasses());
-                metadata.setAllPublicMethods(instance.allPublicMethods());
-                metadata.setAllPublicFields(instance.allPublicFields());
-                metadata.setAllPublicConstructors(instance.allPublicConstructors());
-                metadata.setAllRecordComponents(instance.allRecordComponents());
-                metadata.setAllNestMembers(instance.allNestMembers());
-                metadata.setAllSigners(instance.allSigners());
-                metadata.setAllPermittedSubclasses(instance.allPermittedSubclasses());
-                metadata.setQueryAllDeclaredMethods(instance.queryAllDeclaredMethods());
-                metadata.setQueryAllDeclaredConstructors(instance.queryAllDeclaredConstructors());
-                metadata.setQueryAllPublicMethods(instance.queryAllPublicMethods());
-                metadata.setQueryAllPublicConstructors(instance.queryAllPublicConstructors());
-                metadata.setUnsafeAllocated(instance.unsafeAllocated());
             }
-            metadatas.add(metadata);
+
+            metadataList.add(metadata);
         }
-        ConfigWriter.writeConfigFile(this.processingEnv, Constants.REFLECT_CONFIG_FILENAME, metadatas);
+        ConfigWriter.writeConfigFile(this.processingEnv, Constants.REFLECT_CONFIG_FILENAME, metadataList);
         return true;
     }
 
-    private String getPackage(Element element) {
-        if (element.getEnclosingElement() != null){
-            return getPackage(element.getEnclosingElement()) + "." + element.getSimpleName();
-        } else {
-            return element.getSimpleName().toString();
-        }
-    }
 }
