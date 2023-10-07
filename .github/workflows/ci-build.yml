@@ -25,8 +25,7 @@ jobs:
       - name: Maven Build
         run: |
           mvn \
-          -Pci-release \
-          -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
+          -Pci-profile \
           install
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
@@ -40,13 +39,13 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
+      - name: Sonar Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GH_SONAR_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn \
-          -Pci-release \
+          -Pci-profile \
           -B \
           verify \
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \

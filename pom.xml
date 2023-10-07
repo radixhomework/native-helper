@@ -110,7 +110,7 @@
 
     <profiles>
         <profile>
-            <id>ci-release</id>
+            <id>ci-profile</id>
             <build>
                 <plugins>
                     <plugin>
