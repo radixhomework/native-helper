@@ -24,7 +24,7 @@ jobs:
       - name: Maven Deploy
         run: mvn \
           -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
-          -pci-release \
+          -Pci-release \
           --batch-mode \
           deploy
         env:
