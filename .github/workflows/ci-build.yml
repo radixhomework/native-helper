@@ -23,7 +23,8 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Maven Build
-        run: mvn \
+        run: |
+          mvn \
           -Pci-release \
           -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
           install
@@ -43,7 +44,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_SONAR_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn \
+        run: |
+          mvn \
           -Pci-release \
           -B \
           verify \
