@@ -8,13 +8,13 @@ public class ResourcesBundle {
 
     public void addIncludes(String file) {
         if(resources.getIncludes().stream().noneMatch(pattern -> pattern.getPattern().equals(file))) {
-            resources.getIncludes().add(new Pattern(file));
+            resources.getIncludes().add(new ResourcePattern(file));
         }
     }
 
     public void addExcludes(String file) {
         if(resources.getExcludes().stream().noneMatch(pattern -> pattern.getPattern().equals(file))) {
-            resources.getExcludes().add(new Pattern(file));
+            resources.getExcludes().add(new ResourcePattern(file));
         }
     }
 }

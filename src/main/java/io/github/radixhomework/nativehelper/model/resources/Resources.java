@@ -12,7 +12,7 @@ public class Resources {
 
     public static final String MANIFEST = "META-INF/MANIFEST.MF";
 
-    List<Pattern> includes = new ArrayList<>();
-    List<Pattern> excludes = new ArrayList<>();
+    List<ResourcePattern> includes = new ArrayList<>();
+    List<ResourcePattern> excludes = new ArrayList<>();
 
 }
