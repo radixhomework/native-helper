@@ -22,7 +22,8 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Maven Deploy
-        run: mvn \
+        run: |
+          mvn \
           -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
           -Pci-release \
           --batch-mode \
