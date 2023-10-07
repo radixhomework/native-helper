@@ -25,7 +25,7 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Maven Build
         run: mvn \
-          -pci-release \
+          -Pci-release \
           -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
           install
       - name: Cache SonarCloud packages
@@ -45,7 +45,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_SONAR_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn \
-          -pci-release \
+          -Pci-release \
           -B \
           verify \
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
@@ -53,7 +53,7 @@ jobs:
       - name: Publish package
         run: mvn \
           -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
-          -pci-release \
+          -Pci-release \
           --batch-mode \
           deploy
         env:
