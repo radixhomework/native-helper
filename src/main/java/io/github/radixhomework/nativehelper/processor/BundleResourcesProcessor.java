@@ -19,7 +19,6 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor.class)
 public class BundleResourcesProcessor extends AbstractProcessor {
-    private static final String OUTPUT_FILE = Constants.NATIVE_HELPER_BASE_PATH + "/" + Constants.RESOURCE_CONFIG_FILENAME;
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Pattern {
+public class ResourcePattern {
     private String pattern;
 }
