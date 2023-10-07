@@ -1,3 +1,5 @@
+name: Maven Deploy
+
 on:
   workflow_dispatch:
 
